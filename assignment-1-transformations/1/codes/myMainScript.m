@@ -1,42 +1,28 @@
 %% MyMainScript
 tic;
-%% Your code here
-% myNumOfColors = 200;
-% myColorScale = [ [0:1/(myNumOfColors-1):1]', [0:1/(myNumOfColors-1):1]', [0:1/(myNumOfColors-1):1]'];
-%% Part (a)
+close all;
+
+%Initial code for changing the default colormap
+myNumOfColors = 200; 
+colorScale = 0:1/(myNumOfColors-1):1;
+myColorScale = [ colorScale' colorScale' colorScale' ]; 
+
+%% Image Shrinking
 circles = imread('../data/circles_concentric.png');
 circles_shrunk2 = myShrinkImageByFactorD(circles,2);
 circles_shrunk3 = myShrinkImageByFactorD(circles,3);
+figure,imagesc(circles),colormap(myColorScale),title('Original Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(circles_shrunk2),colormap(myColorScale),title('Shrunk by factor d=2'),daspect([1 1 1]),colorbar;
+figure,imagesc(circles_shrunk3),colormap(myColorScale),title('Shrunk by factor d=3'),daspect([1 1 1]),colorbar;
 
-% colormap (myColorScale);
-% colormap jet;
-
-%display image 1
-figure,imshow(circles);
-% daspect ([1 1 1]);
-% axis tight
-% colorbar
-%display image 2
-figure,imshow(circles_shrunk2);
-% daspect ([1 1 1]);
-% axis tight
-% colorbar
-%display image 3
-figure,imshow(circles_shrunk3);
-% daspect ([1 1 1]);
-% axis tight;
-% colorbar
-%% Part (b)
+%% Image Enlargement using Bilinear Interpolation
 barbara = imread('../data/barbaraSmall.png');
-barbara_zoomed = myBilinearInterpolation(barbara);
-% barbara_zoomed
-% figure,imshow(barbara);
-figure,imshow(mat2gray(barbara_zoomed));
-% colorbar
+barbara_bilinear = myBilinearInterpolation(barbara);
+figure,imagesc(barbara),colormap(myColorScale),title('Original Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(barbara_bilinear),colormap(myColorScale),title('Enlarged using Bilinear Interpolation'),daspect([1 1 1]),colorbar;
 
-%% Part (c)
+%% Image Enlargement using Nearest-Neighbor Interpolation
 barbara_nearest = myNearestNeighborInterpolation(barbara);
-% barbara_nearest
-figure,imshow(mat2gray(barbara_nearest));
-% colorbar
+figure,imagesc(barbara),colormap(myColorScale),title('Original Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(barbara_nearest),colormap(myColorScale),title('Enlarged using Nearest Neighbour'),daspect([1 1 1]),colorbar;
 toc;

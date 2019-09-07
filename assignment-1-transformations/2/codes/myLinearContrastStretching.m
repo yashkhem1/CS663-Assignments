@@ -10,7 +10,7 @@ for i = 1:num_channels
     max_intensity = max(max(input(:,:,i)));
     output(:,:,i) = (input(:,:,i)-min_intensity)*255./(max_intensity-min_intensity);
     
-% output = uint8(output);
+
     
 end
 

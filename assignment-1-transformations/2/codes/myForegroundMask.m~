@@ -1,6 +1,0 @@
-function [ output_args ] = myForegroundMask( original )
-%MYFOREGROUNDMASK Summary of this function goes here
-%   Detailed explanation goes here
-
-end
-

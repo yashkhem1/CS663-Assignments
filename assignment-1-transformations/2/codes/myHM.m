@@ -3,16 +3,8 @@ function [output] = myHM(input,reference)
 %   Detailed explanation goes here
 num_channels = size(input,3);
 for i = 1:num_channels
-    histChannel_inp = imhist(input(:,:,i));
-    histChannel_ref = imhist(reference(:,:,i));
-    
-    
-    
-    
-    
-    
-    
-    
+    histChannel_inp = imhist(input(:,:,i),256);
+    histChannel_ref = imhist(reference(:,:,i),256); 
     cdf_input(:,i) = cumsum(histChannel_inp);
     cdf_ref(:,i) = cumsum(histChannel_ref);
     start=1;
@@ -32,7 +24,7 @@ for i = 1:num_channels
     temp_output(:,:,i) = temp_cdf(input(:,:,i)+1);
 %     temp_output(:,:,i)
     temp_cdf_inv = cdf_ref_inv(:,i);
-    size(temp_cdf_inv)
+%     size(temp_cdf_inv)
     output(:,:,i) = temp_cdf_inv(temp_output(:,:,i))-1;
     
 end

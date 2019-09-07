@@ -19,10 +19,21 @@ for i = 1:new_row
         y2 = y1 + 1;
         dely1 = (j+1)/2 - y1;
         dely2 = y2 - (j+1)/2;
-        delArray = [delx1*dely1,delx1*dely2,delx2*dely1,delx2*dely2];
-        iArray = [input_image(x1,y1), input_image(x1,y2), input_image(x2,y1), input_image(x2,y2)];
-        [elem,index] = min(delArray);
-        zoomed_image(i,j) = iArray(index);
+        if delx1==0
+            zoomed_image(i,j) = input_image(x1,y1);
+
+        else 
+            if delx1 < delx2
+                zoomed_image(i,j) = input_image(x1,y1);
+            else
+                zoomed_image(i,j) = input_image(x2,y1);
+            end
+         
+        end
+%         delArray = [delx1*dely1,delx1*dely2,delx2*dely1,delx2*dely2];
+%         iArray = [input_image(x1,y1), input_image(x1,y2), input_image(x2,y1), input_image(x2,y2)];
+%         [elem,index] = min(delArray);
+%         zoomed_image(i,j) = iArray(index);
         
 %         zoomed_image(i,j) = input_image(x1,y1)*delx2*dely2 + input_image(x1,y2)*delx2*dely1 + input_image(x2,y1)*delx1*dely2 + input_image(x2,y2)*delx1*dely1;
         

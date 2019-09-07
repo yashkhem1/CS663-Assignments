@@ -3,10 +3,9 @@ function [output] = myHE(input)
 %   Detailed explanation goes here
 num_channels = size(input,3);
 for i = 1:num_channels
-    histChannel = imhist(input(:,:,i));
-    cdf(:,i) = cumsum(histChannel)/sum(histChannel);
-    temp = cdf(:,i);
-    output(:,:,i) = temp(input(:,:,i)+1);
+    histChannel = imhist(input(:,:,i),256);
+    cdf = cumsum(histChannel)/sum(histChannel);
+    output(:,:,i) = cdf(input(:,:,i)+1);
 end
 
 

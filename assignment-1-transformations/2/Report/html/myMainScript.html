@@ -1,0 +1,366 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>myMainScript</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-08-23"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">MyMainScript</a></li><li><a href="#2">Foreground Mask</a></li><li><a href="#3">Linear Contrast Stretching</a></li><li><a href="#6">Histogram Equalization</a></li><li><a href="#8">Histogram Matching</a></li><li><a href="#10">Contrast Limited Adaptive Histogram Equalization</a></li></ul></div><h2 id="1">MyMainScript</h2><pre class="codeinput">tic;
+clf;
+close <span class="string">all</span>;
+
+<span class="comment">%Initial code for changing the default colormap</span>
+myNumOfColors = 200;
+myColorScale = [ [0:1/(myNumOfColors-1):1]' , <span class="keyword">...</span>
+[0:1/(myNumOfColors-1):1]', [0:1/(myNumOfColors-1):1]' ];
+</pre><h2 id="2">Foreground Mask</h2><pre class="codeinput"><span class="comment">%For getting the foreground mask we take the pixels that have intensity</span>
+<span class="comment">%greater than the threshold intensity(15 in our case).</span>
+statue = imread(<span class="string">'../data/statue.png'</span>);
+[final_statue,mask_statue] = myForegroundMask(statue);
+figure,imagesc(statue),colormap(myColorScale),title(<span class="string">'Original Image'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mask_statue),colormap(myColorScale),title(<span class="string">'Foreground Mask'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(final_statue),colormap(myColorScale),title(<span class="string">'Final Image'</span>),daspect([1 1 1]),colorbar;
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <h2 id="3">Linear Contrast Stretching</h2><h4>We use the following function for implementing Linear Contrast Stretching:</p><p><img src="myMainScript_eq06638622752540148639.png" alt="$$ I_{new} = \frac{(I_{old} - I_{min})*255}{I_{max}-I_{min}}  $$"> where I_{min} and I_{max} are the maximum and minimum intensities in the image respectively</h4><pre class="codeinput">image_barbara = imread(<span class="string">'../data/barbara.png'</span>);
+output_barbara = myLinearContrastStretching(image_barbara);
+figure(<span class="string">'name'</span>,<span class="string">'LCS on Barbara'</span>)
+subplot(2,1,1),imagesc(image_barbara),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_barbara),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+image_TEM = imread(<span class="string">'../data/TEM.png'</span>);
+output_TEM = myLinearContrastStretching(image_TEM);
+figure(<span class="string">'name'</span>,<span class="string">'LCS on TEM'</span>)
+subplot(2,1,1),imagesc(image_TEM),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_TEM),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+image_canyon = imread(<span class="string">'../data/canyon.png'</span>);
+output_canyon = myLinearContrastStretching(image_canyon);
+figure(<span class="string">'name'</span>,<span class="string">'LS on Canyon'</span>)
+subplot(2,1,1),imagesc(image_canyon),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_canyon)),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+image_church = imread(<span class="string">'../data/church.png'</span>);
+output_church= myLinearContrastStretching(image_church);
+figure(<span class="string">'name'</span>,<span class="string">'LCS on Church'</span>)
+subplot(2,1,1),imagesc(image_church),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_church)),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+image_chest = imread(<span class="string">'../data/chestXray.png'</span>);
+output_chest = myLinearContrastStretching(image_chest);
+figure(<span class="string">'name'</span>,<span class="string">'LCS on Chest'</span>)
+subplot(2,1,1),imagesc(image_chest),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_chest),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+output_statue = myLinearContrastStretching(statue);
+figure(<span class="string">'name'</span>,<span class="string">'LCS on Statue'</span>)
+subplot(2,1,1),imagesc(statue),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_statue),colormap(myColorScale),title(<span class="string">'LCS'</span>),daspect([1 1 1]),colorbar;
+</pre><img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_09.png" alt=""> <h4>In figure 5 (Church) we do not observe any change. This is because in all the three channels the intensity 0 and 255 is present, thus the formula would not change the intensity of the pixels at all.</h4><h2 id="6">Histogram Equalization</h2><pre class="codeinput">image_barbara = imread(<span class="string">'../data/barbara.png'</span>);
+output_barbara = myHE(image_barbara);
+figure(<span class="string">'name'</span>,<span class="string">'HE on Barbara'</span>)
+subplot(2,1,1),imagesc(image_barbara),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_barbara),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+image_TEM = imread(<span class="string">'../data/TEM.png'</span>);
+output_TEM = myHE(image_TEM);
+figure(<span class="string">'name'</span>,<span class="string">'HE on TEM'</span>)
+subplot(2,1,1),imagesc(image_TEM),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_TEM),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+image_canyon = imread(<span class="string">'../data/canyon.png'</span>);
+output_canyon = myHE(image_canyon);
+figure(<span class="string">'name'</span>,<span class="string">'HE on Canyon'</span>)
+subplot(2,1,1),imagesc(image_canyon),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_canyon)),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+image_church = imread(<span class="string">'../data/church.png'</span>);
+output_church= myHE(image_church);
+figure(<span class="string">'name'</span>,<span class="string">'HE on Church'</span>)
+subplot(2,1,1),imagesc(image_church),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_church)),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+output_chest = myHE(image_chest);
+figure(<span class="string">'name'</span>,<span class="string">'HE on Chest'</span>)
+subplot(2,1,1),imagesc(image_chest),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_chest),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+output_statue = myHE(statue);
+figure(<span class="string">'name'</span>,<span class="string">'HE on Statue'</span>)
+subplot(2,1,1),imagesc(statue),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_statue),colormap(myColorScale),title(<span class="string">'HE'</span>),daspect([1 1 1]),colorbar;
+</pre><img vspace="5" hspace="5" src="myMainScript_10.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_11.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_12.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_13.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_14.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_15.png" alt=""> <h4>In figure 5, Histogram equalization tries to convert the histogram of the current image to a uniform pdf histogram, thus it is able to bring out the hidden intensities in the image(which have lower values in the histogram) as well. I would prefer Histogram Equalization over Contrast Stretching.</h4><h2 id="8">Histogram Matching</h2><pre class="codeinput">image_ret = imread(<span class="string">'../data/retina.png'</span>);
+image_ret_ref= imread(<span class="string">'../data/retinaRef.png'</span>);
+output_ret_ref = myHM(image_ret,image_ret_ref);
+<span class="comment">% figure('name','Histogram Equalization on retina image');</span>
+figure,imagesc(image_ret),colormap(myColorScale),title(<span class="string">'Original Image'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(image_ret_ref),colormap(myColorScale),title(<span class="string">'Reference Image'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_ret_ref)),colormap(myColorScale),title(<span class="string">'Matched Image'</span>),daspect([1 1 1]),colorbar;
+</pre><img vspace="5" hspace="5" src="myMainScript_16.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_17.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_18.png" alt=""> <h4>The input image was a bit dull as compared to the reference image but after histogram matching, the input image got the same brightness level as that of the reference image (due to the histogram of first image getting matched to that of the second)</h4><h2 id="10">Contrast Limited Adaptive Histogram Equalization</h2><pre class="codeinput">image_barbara = imread(<span class="string">'../data/barbara.png'</span>);
+output_barbara = myCLAHE(image_barbara,30,0.05);
+output_barbara1 = myCLAHE(image_barbara,100,0.05);
+output_barbara2 = myCLAHE(image_barbara,5,0.05);
+output_barbara3 = myCLAHE(image_barbara,30,0.025);
+<span class="comment">% figure('name','CLAHE on Barbara','Position', [10 10 2700 1800])</span>
+figure,imagesc(image_barbara),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara1),colormap(myColorScale),title(<span class="string">'CLAHE w=201 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara2),colormap(myColorScale),title(<span class="string">'CLAHE w=11 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara3),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.025'</span>),daspect([1 1 1]),colorbar;
+image_TEM = imread(<span class="string">'../data/TEM.png'</span>);
+output_TEM = myCLAHE(image_TEM,30,0.05);
+output_TEM1 = myCLAHE(image_TEM,100,0.05);
+output_TEM2 = myCLAHE(image_TEM,5,0.05);
+output_TEM3 = myCLAHE(image_TEM,30,0.025);
+<span class="comment">% figure('name','CLAHE on TEM','Position', [10 10 2700 1800])</span>
+figure,imagesc(image_TEM),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM1),colormap(myColorScale),title(<span class="string">'CLAHE w=201 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM2),colormap(myColorScale),title(<span class="string">'CLAHE w=11 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM3),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.025'</span>),daspect([1 1 1]),colorbar;
+image_canyon = imread(<span class="string">'../data/canyon.png'</span>);
+output_canyon = myCLAHE(image_canyon,30,0.05);
+output_canyon1 = myCLAHE(image_canyon,100,0.05);
+output_canyon2 = myCLAHE(image_canyon,5,0.05);
+output_canyon3 = myCLAHE(image_canyon,30,0.025);
+<span class="comment">% figure('name','CLAHE on Canyon','Position', [10 10 2700 1800])</span>
+figure,imagesc(image_canyon),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon)),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon1)),colormap(myColorScale),title(<span class="string">'CLAHE w=201 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon2)),colormap(myColorScale),title(<span class="string">'CLAHE w=11 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon3)),colormap(myColorScale),title(<span class="string">'CLAHE w=61 k=0.025'</span>),daspect([1 1 1]),colorbar;
+output_chest = myCLAHE(image_chest,40,0.05);
+output_chest1 = myCLAHE(image_chest,110,0.05);
+output_chest2 = myCLAHE(image_chest,5,0.05);
+output_chest3 = myCLAHE(image_chest,40,0.025);
+<span class="comment">% figure('name','HE on Chest','Position', [10 10 2700 1800])</span>
+figure,imagesc(image_chest),colormap(myColorScale),title(<span class="string">'Original'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest),colormap(myColorScale),title(<span class="string">'CLAHE w=81 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest1),colormap(myColorScale),title(<span class="string">'CLAHE w=221 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest2),colormap(myColorScale),title(<span class="string">'CLAHE w=11 k=0.05'</span>),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest3),colormap(myColorScale),title(<span class="string">'CLAHE w=81 k=0.025'</span>),daspect([1 1 1]),colorbar;
+
+
+toc
+</pre><pre class="codeoutput">Elapsed time is 736.835093 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_19.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_20.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_21.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_22.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_23.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_24.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_25.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_26.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_27.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_28.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_29.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_30.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_31.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_32.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_33.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_34.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_35.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_36.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_37.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_38.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% MyMainScript
+
+tic;
+clf;
+close all;
+
+%Initial code for changing the default colormap
+myNumOfColors = 200;
+myColorScale = [ [0:1/(myNumOfColors-1):1]' , ...
+[0:1/(myNumOfColors-1):1]', [0:1/(myNumOfColors-1):1]' ];
+%% Foreground Mask
+%For getting the foreground mask we take the pixels that have intensity
+%greater than the threshold intensity(15 in our case).
+statue = imread('../data/statue.png');
+[final_statue,mask_statue] = myForegroundMask(statue);
+figure,imagesc(statue),colormap(myColorScale),title('Original Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(mask_statue),colormap(myColorScale),title('Foreground Mask'),daspect([1 1 1]),colorbar;
+figure,imagesc(final_statue),colormap(myColorScale),title('Final Image'),daspect([1 1 1]),colorbar;
+
+
+%% Linear Contrast Stretching
+% We use the following function for implementing Linear Contrast
+% Stretching:
+
+%%
+% $$ I_{new} = \frac{(I_{old} - I_{min})*255}{I_{max}-I_{min}}  $$
+% where I_{min} and I_{max} are the maximum and minimum intensities in the
+% image respectively
+%
+
+image_barbara = imread('../data/barbara.png');
+output_barbara = myLinearContrastStretching(image_barbara);
+figure('name','LCS on Barbara')
+subplot(2,1,1),imagesc(image_barbara),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_barbara),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+image_TEM = imread('../data/TEM.png');
+output_TEM = myLinearContrastStretching(image_TEM);
+figure('name','LCS on TEM')
+subplot(2,1,1),imagesc(image_TEM),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_TEM),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+image_canyon = imread('../data/canyon.png');
+output_canyon = myLinearContrastStretching(image_canyon);
+figure('name','LS on Canyon')
+subplot(2,1,1),imagesc(image_canyon),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_canyon)),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+image_church = imread('../data/church.png');
+output_church= myLinearContrastStretching(image_church);
+figure('name','LCS on Church')
+subplot(2,1,1),imagesc(image_church),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_church)),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+image_chest = imread('../data/chestXray.png');
+output_chest = myLinearContrastStretching(image_chest);
+figure('name','LCS on Chest')
+subplot(2,1,1),imagesc(image_chest),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_chest),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+output_statue = myLinearContrastStretching(statue);
+figure('name','LCS on Statue')
+subplot(2,1,1),imagesc(statue),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_statue),colormap(myColorScale),title('LCS'),daspect([1 1 1]),colorbar;
+
+%%
+% In figure 5 (Church) we do not observe any change. This is because in all
+% the three channels the intensity 0 and 255 is present, thus the formula would not
+% change the intensity of the pixels at all.
+
+%% Histogram Equalization
+image_barbara = imread('../data/barbara.png');
+output_barbara = myHE(image_barbara);
+figure('name','HE on Barbara')
+subplot(2,1,1),imagesc(image_barbara),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_barbara),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+image_TEM = imread('../data/TEM.png');
+output_TEM = myHE(image_TEM);
+figure('name','HE on TEM')
+subplot(2,1,1),imagesc(image_TEM),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_TEM),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+image_canyon = imread('../data/canyon.png');
+output_canyon = myHE(image_canyon);
+figure('name','HE on Canyon')
+subplot(2,1,1),imagesc(image_canyon),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_canyon)),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+image_church = imread('../data/church.png');
+output_church= myHE(image_church);
+figure('name','HE on Church')
+subplot(2,1,1),imagesc(image_church),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(mat2gray(output_church)),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+output_chest = myHE(image_chest);
+figure('name','HE on Chest')
+subplot(2,1,1),imagesc(image_chest),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_chest),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+output_statue = myHE(statue);
+figure('name','HE on Statue')
+subplot(2,1,1),imagesc(statue),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+subplot(2,1,2),imagesc(output_statue),colormap(myColorScale),title('HE'),daspect([1 1 1]),colorbar;
+
+%%
+% In figure 5, Histogram equalization tries to convert the histogram of the
+% current image to a uniform pdf histogram, thus it is able to bring out
+% the hidden intensities in the image(which have lower values in the
+% histogram) as well. I would prefer Histogram Equalization over Contrast
+% Stretching.
+
+%% Histogram Matching
+image_ret = imread('../data/retina.png');
+image_ret_ref= imread('../data/retinaRef.png');
+output_ret_ref = myHM(image_ret,image_ret_ref);
+% figure('name','Histogram Equalization on retina image');
+figure,imagesc(image_ret),colormap(myColorScale),title('Original Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(image_ret_ref),colormap(myColorScale),title('Reference Image'),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_ret_ref)),colormap(myColorScale),title('Matched Image'),daspect([1 1 1]),colorbar;
+
+
+%%
+% The input image was a bit dull as compared to the reference image but
+% after histofram matching, the input image got the same brightness level
+% as that of the reference image (due to the histogram of first image
+% getting matched to that of the second)
+
+%% Contrast Limited Adaptive Histogram Equalization
+image_barbara = imread('../data/barbara.png');
+output_barbara = myCLAHE(image_barbara,30,0.05);
+output_barbara1 = myCLAHE(image_barbara,100,0.05);
+output_barbara2 = myCLAHE(image_barbara,5,0.05);
+output_barbara3 = myCLAHE(image_barbara,30,0.025);
+% figure('name','CLAHE on Barbara','Position', [10 10 2700 1800])
+figure,imagesc(image_barbara),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara),colormap(myColorScale),title('CLAHE w=61 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara1),colormap(myColorScale),title('CLAHE w=201 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara2),colormap(myColorScale),title('CLAHE w=11 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_barbara3),colormap(myColorScale),title('CLAHE w=61 k=0.025'),daspect([1 1 1]),colorbar;
+image_TEM = imread('../data/TEM.png');
+output_TEM = myCLAHE(image_TEM,30,0.05);
+output_TEM1 = myCLAHE(image_TEM,100,0.05);
+output_TEM2 = myCLAHE(image_TEM,5,0.05);
+output_TEM3 = myCLAHE(image_TEM,30,0.025);
+% figure('name','CLAHE on TEM','Position', [10 10 2700 1800])
+figure,imagesc(image_TEM),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM),colormap(myColorScale),title('CLAHE w=61 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM1),colormap(myColorScale),title('CLAHE w=201 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM2),colormap(myColorScale),title('CLAHE w=11 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_TEM3),colormap(myColorScale),title('CLAHE w=61 k=0.025'),daspect([1 1 1]),colorbar;
+image_canyon = imread('../data/canyon.png');
+output_canyon = myCLAHE(image_canyon,30,0.05);
+output_canyon1 = myCLAHE(image_canyon,100,0.05);
+output_canyon2 = myCLAHE(image_canyon,5,0.05);
+output_canyon3 = myCLAHE(image_canyon,30,0.025);
+% figure('name','CLAHE on Canyon','Position', [10 10 2700 1800])
+figure,imagesc(image_canyon),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon)),colormap(myColorScale),title('CLAHE w=61 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon1)),colormap(myColorScale),title('CLAHE w=201 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon2)),colormap(myColorScale),title('CLAHE w=11 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(mat2gray(output_canyon3)),colormap(myColorScale),title('CLAHE w=61 k=0.025'),daspect([1 1 1]),colorbar;
+output_chest = myCLAHE(image_chest,40,0.05);
+output_chest1 = myCLAHE(image_chest,110,0.05);
+output_chest2 = myCLAHE(image_chest,5,0.05);
+output_chest3 = myCLAHE(image_chest,40,0.025);
+% figure('name','HE on Chest','Position', [10 10 2700 1800])
+figure,imagesc(image_chest),colormap(myColorScale),title('Original'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest),colormap(myColorScale),title('CLAHE w=81 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest1),colormap(myColorScale),title('CLAHE w=221 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest2),colormap(myColorScale),title('CLAHE w=11 k=0.05'),daspect([1 1 1]),colorbar;
+figure,imagesc(output_chest3),colormap(myColorScale),title('CLAHE w=81 k=0.025'),daspect([1 1 1]),colorbar;
+
+
+toc
+
+
+
+##### SOURCE END #####
+--></body></html>
