@@ -1,0 +1,31 @@
+%% MyMainScript
+
+tic;
+%% Your code here
+
+image = imread('../data/flower.png');
+
+%Uncomment below to downsample the image by a factor of two
+% image = imresize(image, 1/2);
+%
+%% Optimal Parameter Values
+%
+%%
+% 
+% * Gaussian Kernel Bandwidth for color feature = 20
+% * Gaussian Kernel Bandwidth for spatial feature = 100
+
+final_img = myMeanShiftSegmentation(image, 20, 100, 20);
+
+% imshow(uint8(final_img));
+% figure('Renderer', 'painters', 'Position',[10 10 900 600]);
+figure;
+subplot(1,2,1);
+imshow(uint8(image), 'DisplayRange', []);
+title('Original Image');
+subplot(1, 2, 2);
+imshow(uint8(final_img), 'DisplayRange', []);
+title('Segmented Image');
+
+toc;
+
